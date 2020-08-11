@@ -21,7 +21,7 @@ The solution can be visualized by running the function
 
 3. Computing the errors.  
 Run the script `run_mlmcs.m` from the matlab shell.  
-This script loads one of the reference solutions (`testfasitrandposition.mat` for Experiment 1, `testfasitrandabsolutepermeability.mat` for Experiment 2 from the paper), then computes `ntry=30` MLMC estimators E_L[u^L] at levels L=0,..., maxtest (= 6 by default) and compares them to the reference solution.  
+This script loads one of the reference solutions (`testfasitrandposition.mat` for Experiment 1, `testfasitrandabsolutepermeability.mat` for Experiment 2 from the paper), then computes `ntry=30` MLMC estimators E_L[u^L] at levels L=0,..., `maxtest` (= 6 by default) and compares them to the reference solution.  
 The relative errors are stored in the variable `Rk`, the average computation times per estimator in the variable `timeused`, the mesh resolutions at the finest level in the variable `resolutions`, the convergence rate with respect to mesh resolution in `ratemesh`, and the rate with respect to computation time in `ratework`. The variables `Rk`, `vRk` (variance of errors), `timeused`, `ratemesh` and `ratework` are saved into a `.mat` file named `RelativeErrorsfile.mat`.  
 The variable `model` can be set to the strings `m1` or `m2` where `m1` will run Experiment 1 from the paper and `m2` will run Experiment 2.
 The variable `paralleloption` can be set to 0 or 1, where for the option 1, the inner for loop is replaced by a parfor loop that will distribute the computation of the samples on several cores, if available.
@@ -38,7 +38,7 @@ The MLMC estimator can be visualized by running the function
 
 5. Generating a reference solution.  
 Run the script `compute_gauss_reference.m` from the matlab shell. 
-By default it will compute a reference solution to Experiment 1 from the paper and save it as `testfasitrandposition.mat`.   
+By default it will compute a reference solution to Experiment 1 based on the trapezoidal rule in the parameter domain from the paper and save it as `testfasitrandposition.mat`.   
 The variable `model` can be set to the strings `m1` or `m2` where `m1` will run Experiment 1 from the paper and `m2` will run Experiment 2.
 
 
