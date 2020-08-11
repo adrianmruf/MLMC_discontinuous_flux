@@ -15,8 +15,7 @@ Contents
 ---
 
 1. Computing a finite volume approximation.
-
-Run the function `[u,U]=FVM(u0,x,T,sigma,model);` where `u0` is a vector representing an approximation of the initial datum (use the function `u0=initialdata(x)`), `x` is a discretization of the domain (with length(x)=length(u0)+1), `T` is the end time, sigma is a vector with two entries representing the model parameters for the discontinuous coefficient k, and `model` can be set to the strings `m1` or `m2` where `m1` corresponds to random position of the flux discontinuity in the Buckley--Leverett equation and `m2` corresponds to random absolute permeabilities to the left and right of a flux discontinuity located at x=0.
+  Run the function `[u,U]=FVM(u0,x,T,sigma,model);` where `u0` is a vector representing an approximation of the initial datum (use the function `u0=initialdata(x)`), `x` is a discretization of the domain (with length(x)=length(u0)+1), `T` is the end time, sigma is a vector with two entries representing the model parameters for the discontinuous coefficient k, and `model` can be set to the strings `m1` or `m2` where `m1` corresponds to random position of the flux discontinuity in the Buckley--Leverett equation and `m2` corresponds to random absolute permeabilities to the left and right of a flux discontinuity located at x=0.
 The solution can be visualized by running the function
 `matplay(getcellmidpoints(x),U,ylimits,T);`
 
