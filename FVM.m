@@ -1,8 +1,9 @@
 function [u,U]=FVM(u0,x,T,sigma,model)
 %  Calculates an approximate solution of u_t + f(k(x),u)_x = 0 with initial
 % data u0, up to a time T. x is the space discretization. Periodic boundary
-%  conditions are used. sigma(1:2) is a random variable containing 
-% information about the discontinuous coefficient k.
+%  conditions are used. sigma is a random variable containing 
+% information about the discontinuous coefficient k and the relative
+% permeabilities
 
 % 'u' is approximation at final time, 'U' (optional output argument) matrix
 % with approximation at all time steps.

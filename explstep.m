@@ -3,7 +3,7 @@ function u=explstep(u,x,dt,dx,sigma,model)
 % One step explicit scheme for scheme v=u - dt* Dm f_j
 % periodic boundary. Upwing method, assumes f'>0.
 %
-% sigma 2-vector of random numbers
+% sigma - vector of random numbers
 
 N=length(u);
 
@@ -23,6 +23,7 @@ f=fluxR(u,sigma,model);
 % periodic boundary conditions
 IL=1:J-1;
 ILm=[N,1:J-2];
+
 uL=u(IL)-lambda*(g(IL)-g(ILm));
 
 uM=fluxRinverse(fluxL(uL(end),sigma,model),sigma,model);

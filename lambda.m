@@ -1,2 +1,2 @@
-function f=lambda(u)
-f=real(u.^(2));
+function f=lambda(u,sigma)
+f=real(u.^(sigma(4)));

@@ -1,23 +1,28 @@
-function [Umlmc,Var1,Var2,xmlmc,timeused]=mlmc_method(L,model,coarsestlevel,paralleloption)
+function [Umlmc,Var1,Var2,xmlmc,timeused]=mlmc_method(L,model,coarsestlevel,paralleloption,samples)
 % Estimate the expectation U and the variance V using the MLMCFVM with L
 % levels with 2^coarsestlevel meshpoints at the coarsest level.
 % Input parameter model specifies which type of randomess is investigated,
-% Implemented are 'm1' and 'm2', 'm1' is random position of the
+% Implemented are 'm1', 'm2', and 'm3'. 'm1' is random position of the
 % discontinuity of the coefficient k and 'm2' is random absolute
-% permeabilities to the left and right of the discontinuity located at x=0.
+% permeabilities to the left and right of the discontinuity located at x=0
+% and 'm3' is random position, as well as random absolute and relative
+% permeabilities.
 % Input parameter 'paralleloption' is either 0 or 1, default is 0, no
 % parallel loop.
 
-if nargin<4
-    paralleloption=0;
-    if nargin<3
-        coarsestlevel = 5;	% #meshpoints at coarsest level is 2^coarsestlevel
-        if nargin<2
-            model = 'm1';
-            fprintf('You did not specify which model you want, I run default random position');
-            if nargin<1
-                L=5;
-                fprintf('You did not specify how many levels, I run L=5. It might take a while >:)');
+if nargin<5
+    samples=nsamples(2/(2^coarsestlevel+L),L-1);
+    if nargin<4
+        paralleloption=0;
+        if nargin<3
+            coarsestlevel = 5;	% #meshpoints at coarsest level is 2^coarsestlevel
+            if nargin<2
+                model = 'm1';
+                fprintf('You did not specify which model you want, I run default random position');
+                if nargin<1
+                    L=5;
+                    fprintf('You did not specify how many levels, I run L=5. It might take a while >:)');
+                end
             end
         end
     end
@@ -26,19 +31,9 @@ end
 tic;
 
 % initialize ranges for random variables
-if strcmp(model,'m2') % random absolute permeabilities
-    a=[-0.3 -0.3];
-    b=[0.3,0.3];
-else if strcmp(model,'m1') % random position of discontinuity
-        a=-0.3;
-        b=0.3;
-    else     % default to model m1
-        a=-0.3;
-        b=0.3;
-        model ='m1';
-        fprintf('Your input model parameter has not been implemented yet, I am running the random position model');
-    end
-end
+a=[-0.3 -0.3 -0.3 1.5];
+b=[0.3 0.3 0.3 2.5];
+
        
 T=0.2;              % final time where solution is computed
 finestlevel=coarsestlevel+L;  
@@ -52,7 +47,7 @@ Umlmc=zeros(size(xmaster)-[0, 1]); % the results are linearly interpolated onto 
 Usquare=Umlmc;  % to estimate the second moment
 Var1=Umlmc;     % attempt to estimate variance in a multilevel fashion
 dx0=(xmax-xmin)/2^coarsestlevel;    % cell size at coarsest level
-samplenumbers=nsamples(dx0,L-1);    % sample numbers for all the levels
+samplenumbers=samples;    % sample numbers for all the levels
 
 samplelevel=finestlevel;
 
@@ -72,11 +67,14 @@ if paralleloption
         % parpool([number]) or in 'Manage cluster profiles' under the menu
         % 'Parallel')
         
-            sigma=a+(b-a).*rand(1,2);   % initialize random paramters
+            sigma=a+(b-a).*rand(1,4);   % initialize random paramters
             
-            if strcmp(model,'m1')
-                sigma(2)=sigma(1); % just one random number for random position
-                
+            if strcmp(model,'m1') | strcmp(model,'m3')
+                if strcmp(model,'m1')
+                    sigma(2)=0;
+                    sigma(3)=0;
+                    sigma(4)=2;
+                end
                 dx=xmaster(2)-xmaster(1);
                 
                 xL=sigma(1):-dx:-1.;
@@ -89,6 +87,8 @@ if paralleloption
                 x1R=sigma(1)+2*dx:2*dx:1.+2*dx;
                 x1=[x1L, x1R];
             else % model m2
+                sigma(1)=0;
+                sigma(4)=2;
                 x=xmaster;
                 x1=x1master;
             end
@@ -123,10 +123,14 @@ if paralleloption
         % (it is possible to restrict the number of workers used by
         % parpool([number]) or in 'Manage cluster profiles' under the menu
         % 'Parallel')
-        sigma=a+(b-a).*rand(1,2);
+        sigma=a+(b-a).*rand(1,4);
         
-        if strcmp(model,'m1')
-            sigma(2)=sigma(1); % just one random number for random position
+        if strcmp(model,'m1')| strcmp(model,'m3')
+            if strcmp(model,'m1')
+                sigma(2)=0;
+                sigma(3)=0;
+                sigma(4)=2;
+            end
             
             dx=xmaster(2)-xmaster(1);
             
@@ -135,6 +139,8 @@ if paralleloption
             xR=sigma(1)+dx:dx:1.+dx;
             x=[xL,xR];
         else % model m2
+            sigma(1)=0;
+            sigma(4)=2;
             x=xmaster;
         end
         u0ml=initialdata(x);
@@ -160,9 +166,13 @@ else
         utemp = zeros(size(xmlmc)-[0,1]);
     
         for i=1:Ml        
-            sigma=a+(b-a).*rand(1,2);   % initialize random paramters
-            if strcmp(model,'m1')
-                sigma(2)=sigma(1); % just one random number for random position
+            sigma=a+(b-a).*rand(1,4);   % initialize random paramters
+            if strcmp(model,'m1')| strcmp(model,'m3')
+                if strcmp(model,'m1')
+                    sigma(2)=0;
+                    sigma(3)=0;
+                    sigma(4)=2;
+                end
                 
                 dx=xmaster(2)-xmaster(1);
                 
@@ -176,6 +186,8 @@ else
                 x1R=sigma(1)+2*dx:2*dx:1.+2*dx;
                 x1=[x1L, x1R];
             else % model m2
+                sigma(1)=0;
+                sigma(4)=2;
                 x=xmaster;
                 x1=x1master;
             end
@@ -211,10 +223,13 @@ else
     utemp = Usquaretemp;
 
     for i=1:Ml 
-        sigma=a+(b-a).*rand(1,2);
-        if strcmp(model,'m1')
-            sigma(2)=sigma(1); % just one random number for random position
-            
+        sigma=a+(b-a).*rand(1,4);
+        if strcmp(model,'m1')| strcmp(model,'m3')
+            if strcmp(model,'m1')
+                sigma(2)=0;
+                sigma(3)=0;
+                sigma(4)=2;
+            end
             dx=xmaster(2)-xmaster(1);
             
             xL=sigma(1):-dx:-1.;
@@ -222,6 +237,8 @@ else
             xR=sigma(1)+dx:dx:1.+dx;
             x=[xL,xR];
         else % model m2
+            sigma(1)=0;
+            sigma(4)=2;
             x=xmaster;
         end
         u0ml=initialdata(x);
